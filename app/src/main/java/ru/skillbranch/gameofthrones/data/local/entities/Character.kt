@@ -32,8 +32,8 @@ data class CharacterFull(
     val titles: List<String>,
     val aliases: List<String>,
     val house:String, //rel
-    val father: RelativeCharter?,
-    val mother: RelativeCharter?
+    val father: RelativeCharacter?,
+    val mother: RelativeCharacter?
 )
 
 data class RelativeCharacter(
