@@ -16,14 +16,42 @@ class HousesInteractor(private val housesRepository: HousesRepository, private v
         const val CHARACTER_REGEX = "https://www.anapioficeandfire.com/api/characters/([0-9]+)"
     }
 
-    private var job : Job? = null
+    private var jobGetOnlineHousesCharacters : Job? = null
+    private var jobGetAllHouses : Job? = null
+    private var jobGetNeedHouses : Job? = null
 
-    fun getOnlineHousesCharacters(vararg houseNames: String, result: (houses: List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        val resultList = ArrayList<Pair<HouseRes, List<CharacterRes>>>()
+    fun getAllHouses(result : (houses : List<HouseRes>) -> Unit) {
+        jobGetAllHouses?.cancel()
+        jobGetAllHouses = GlobalScope.launch(Dispatchers.IO) {
+            val resultList = ArrayList<HouseRes>()
+            var i: Long = 1
+            do {
+                val pageList = housesRepository.getHouses(i++, 50)
+                if (pageList.isNotEmpty()) {
+                    resultList.addAll(pageList)
+                }
+            } while (pageList.isNotEmpty())
+            result(resultList)
+        }
+    }
 
-        job?.cancel()
+    fun getNeedHouses(vararg houseNames: String, result : (houses : List<HouseRes>) -> Unit) {
+        jobGetNeedHouses?.cancel()
+        jobGetNeedHouses = GlobalScope.launch(Dispatchers.IO) {
+            val resultList = ArrayList<HouseRes>()
+            for(house in houseNames) {
+                housesRepository.getCurrentHouse(house)?.let {
+                    resultList.add(it)
+                }
+            }
+            result(resultList)
+        }
+    }
 
-        job = GlobalScope.launch(Dispatchers.IO) {
+    fun getOnlineHousesAndCharacters(vararg houseNames: String, result: (houses: List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
+        jobGetOnlineHousesCharacters?.cancel()
+        jobGetOnlineHousesCharacters = GlobalScope.launch(Dispatchers.IO) {
+            val resultList = ArrayList<Pair<HouseRes, List<CharacterRes>>>()
             for (house in houseNames) {
                 getHouseResByName(house)?.let {
                     resultList.add(Pair(it, getCharactersResListByHouseMembers(it.swornMembers)))

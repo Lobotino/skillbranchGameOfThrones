@@ -10,7 +10,7 @@ import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 interface GameOfThronesApi {
 
     @GET("houses")
-    fun getAllHouses() : Call<List<HouseRes>>
+    fun getAllHouses(@Query("page") page : Long, @Query("pageSize") pageSize : Long) : Call<List<HouseRes>>
 
     @GET("houses")
     fun getCurrentHouse(@Query("name") name : String) : Call<List<HouseRes>>

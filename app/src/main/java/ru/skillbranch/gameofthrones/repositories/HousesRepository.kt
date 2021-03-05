@@ -8,8 +8,8 @@ import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 
 class HousesRepository(private val apiClient : GameOfThronesApi) {
 
-    fun getAllHouses(result: (houses: List<HouseRes>) -> Unit) {
-        apiClient.getAllHouses().enqueue(object : Callback<List<HouseRes>> {
+    fun getHouses(page : Long, pageSize : Long, result: (houses: List<HouseRes>) -> Unit) {
+        apiClient.getAllHouses(page, pageSize).enqueue(object : Callback<List<HouseRes>> {
             override fun onResponse(call: Call<List<HouseRes>>, response: Response<List<HouseRes>>) {
                 if (response.isSuccessful) {
                     if (response.body() != null) {
@@ -22,6 +22,15 @@ class HousesRepository(private val apiClient : GameOfThronesApi) {
                 t.printStackTrace()
             }
         })
+    }
+
+    fun getHouses(page: Long, pageSize: Long) : List<HouseRes> {
+        val response = apiClient.getAllHouses(page, pageSize).execute()
+        return if(response.isSuccessful && response.body() != null) {
+            response.body()!!
+        } else {
+            ArrayList()
+        }
     }
 
     fun getCurrentHouse(name: String, result: (HouseRes) -> Unit) {

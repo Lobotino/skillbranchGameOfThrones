@@ -10,13 +10,16 @@ import ru.skillbranch.gameofthrones.interactors.HousesInteractor
 
 object RootRepository {
 
+    private val apiClient = GameOfThronesClient().getApiClient()
+    private val housesInteractor = HousesInteractor(HousesRepository(apiClient), CharactersRepository(apiClient))
+
     /**
      * Получение данных о всех домах из сети
      * @param result - колбек содержащий в себе список данных о домах
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getAllHouses(result : (houses : List<HouseRes>) -> Unit) {
-        //TODO implement me
+        housesInteractor.getAllHouses(result)
     }
 
     /**
@@ -26,7 +29,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouses(vararg houseNames: String, result : (houses : List<HouseRes>) -> Unit) {
-
+        housesInteractor.getNeedHouses(*houseNames, result = result)
     }
 
     /**
@@ -36,9 +39,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouseWithCharacters(vararg houseNames: String, result : (houses : List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        val apiClient = GameOfThronesClient().getApiClient()
-        val houseInteractor = HousesInteractor(HousesRepository(apiClient), CharactersRepository(apiClient))
-        houseInteractor.getOnlineHousesCharacters(houseNames = houseNames, result = result)
+        housesInteractor.getOnlineHousesAndCharacters(*houseNames, result = result)
     }
 
     /**
