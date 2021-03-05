@@ -3,8 +3,10 @@ package ru.skillbranch.gameofthrones.repositories
 import androidx.annotation.VisibleForTesting
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
+import ru.skillbranch.gameofthrones.data.remote.GameOfThronesClient
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
+import ru.skillbranch.gameofthrones.interactors.HousesInteractor
 
 object RootRepository {
 
@@ -24,7 +26,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouses(vararg houseNames: String, result : (houses : List<HouseRes>) -> Unit) {
-        //TODO implement me
+
     }
 
     /**
@@ -34,7 +36,9 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouseWithCharacters(vararg houseNames: String, result : (houses : List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        //TODO implement me
+        val apiClient = GameOfThronesClient().getApiClient()
+        val houseInteractor = HousesInteractor(HousesRepository(apiClient), CharactersRepository(apiClient))
+        houseInteractor.getOnlineHousesCharacters(houseNames = houseNames, result = result)
     }
 
     /**
