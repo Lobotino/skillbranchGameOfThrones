@@ -5,7 +5,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import ru.skillbranch.gameofthrones.AppConfig
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
+import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 import java.lang.Exception
 
 class SQLiteHelper(context: Context) :
@@ -62,7 +64,6 @@ class SQLiteHelper(context: Context) :
         private const val COLUMN_MOTHER = "mother"
         private const val COLUMN_SPOUSE = "spouse"
 
-        private const val COLUMN_CHARACTER_NAME = "character_name"
         private const val COLUMN_ALIAS = "alias"
         private const val COLUMN_ALLEGIANCE = "allegiance"
         private const val COLUMN_BOOK = "book"
@@ -204,6 +205,160 @@ class SQLiteHelper(context: Context) :
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         //do nothing
+    }
+
+    fun insertHouse(db: SQLiteDatabase, houseRes: HouseRes) {
+        val houseShortName = AppConfig.HOUSES_SHORT_NAMES[houseRes.fullName]
+
+        val houseValues = ContentValues()
+        houseValues.put(COLUMN_URL, houseRes.url)
+        houseValues.put(COLUMN_NAME, houseShortName)
+        houseValues.put(COLUMN_FULL_NAME, houseRes.fullName)
+        houseValues.put(COLUMN_REGION, houseRes.region)
+        houseValues.put(COLUMN_COAT_OF_ARMS, houseRes.coatOfArms)
+        houseValues.put(COLUMN_WORDS, houseRes.words)
+        houseValues.put(COLUMN_CURRENT_LORD, houseRes.currentLord)
+        houseValues.put(COLUMN_HEIR, houseRes.heir)
+        houseValues.put(COLUMN_OVERLORD, houseRes.overlord)
+        houseValues.put(COLUMN_FOUNDED, houseRes.founded)
+        houseValues.put(COLUMN_FOUNDER, houseRes.founder)
+        houseValues.put(COLUMN_DIED_OUT, houseRes.diedOut)
+        db.insert(TABLE_HOUSES, null, houseValues)
+
+        if (houseRes.titles.isNotEmpty()) {
+            for (title in houseRes.titles) {
+                val houseTitle = ContentValues()
+                houseTitle.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                houseTitle.put(COLUMN_TITLE, title)
+                db.insert(TABLE_HOUSES_TITLES, null, houseTitle)
+            }
+        }
+        if (houseRes.seats.isNotEmpty()) {
+            for (seat in houseRes.seats) {
+                val houseSeat = ContentValues()
+                houseSeat.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                houseSeat.put(COLUMN_SEAT, seat)
+                db.insert(TABLE_HOUSES_SEATS, null, houseSeat)
+            }
+        }
+        if (houseRes.ancestralWeapons.isNotEmpty()) {
+            for (weapon in houseRes.ancestralWeapons) {
+                val houseWeapon = ContentValues()
+                houseWeapon.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                houseWeapon.put(COLUMN_WEAPON, weapon)
+                db.insert(TABLE_HOUSES_ANCESTRAL_WEAPONS, null, houseWeapon)
+            }
+        }
+        if (houseRes.cadetBranches.isNotEmpty()) {
+            for (cadetBranch in houseRes.cadetBranches) {
+                val cadetBranchValues = ContentValues()
+                cadetBranchValues.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                cadetBranchValues.put(COLUMN_CADET_BRANCH, cadetBranch.toString())
+                db.insert(TABLE_HOUSES_CADET_BRANCHES, null, cadetBranchValues)
+            }
+        }
+        if (houseRes.swornMembers.isNotEmpty()) {
+            for (swornMember in houseRes.swornMembers) {
+                val swornMembersValues = ContentValues()
+                swornMembersValues.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                swornMembersValues.put(COLUMN_SWORN_MEMBER, swornMember)
+                db.insert(TABLE_HOUSES_SWORN_MEMBERS, null, swornMembersValues)
+            }
+        }
+    }
+
+    fun getHouseResByShortName(db: SQLiteDatabase, shortName: String): HouseRes {
+        var url = ""
+        var fullName = ""
+        var region = ""
+        var coatOfArms = ""
+        var words = ""
+        var currentLord = ""
+        var heir = ""
+        var overlord = ""
+        var founded = ""
+        var founder = ""
+        var diedOut = ""
+
+        val houseCursor = db.rawQuery("SELECT * FROM $TABLE_HOUSES WHERE $COLUMN_NAME LIKE '$shortName'", null)
+        if (houseCursor.moveToFirst() && houseCursor.count > 0) {
+            url = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_URL))
+            fullName = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_FULL_NAME))
+            region = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_REGION))
+            coatOfArms = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_COAT_OF_ARMS))
+            words = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_WORDS))
+            currentLord = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_CURRENT_LORD))
+            heir = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_HEIR))
+            overlord = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_OVERLORD))
+            founded = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_FOUNDED))
+            founder = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_FOUNDER))
+            diedOut = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_DIED_OUT))
+        }
+        houseCursor.close()
+
+        val titlesList = ArrayList<String>()
+        val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_HOUSES_TITLES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        if (titlesCursor.moveToFirst() && titlesCursor.count > 0) {
+            do {
+                titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
+            } while (titlesCursor.moveToNext())
+        }
+        titlesCursor.close()
+
+        val seatsList = ArrayList<String>()
+        val seatsCursor = db.rawQuery("select ($COLUMN_SEAT) from $TABLE_HOUSES_SEATS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        if (seatsCursor.moveToFirst() && seatsCursor.count > 0) {
+            do {
+                seatsList.add(seatsCursor.getString(seatsCursor.getColumnIndex(COLUMN_SEAT)))
+            } while (seatsCursor.moveToNext())
+        }
+        seatsCursor.close()
+
+        val ancestralWeaponsList = ArrayList<String>()
+        val ancestralWeaponsCursor = db.rawQuery("select ($COLUMN_WEAPON) from $TABLE_HOUSES_ANCESTRAL_WEAPONS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        if (ancestralWeaponsCursor.moveToFirst() && ancestralWeaponsCursor.count > 0) {
+            do {
+                ancestralWeaponsList.add(ancestralWeaponsCursor.getString(ancestralWeaponsCursor.getColumnIndex(COLUMN_WEAPON)))
+            } while (ancestralWeaponsCursor.moveToNext())
+        }
+        ancestralWeaponsCursor.close()
+
+        val cadetBranchesList = ArrayList<String>()
+        val cadetBranchesCursor = db.rawQuery("select ($COLUMN_CADET_BRANCH) from $TABLE_HOUSES_CADET_BRANCHES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        if (cadetBranchesCursor.moveToFirst() && cadetBranchesCursor.count > 0) {
+            do {
+                cadetBranchesList.add(cadetBranchesCursor.getString(cadetBranchesCursor.getColumnIndex(COLUMN_CADET_BRANCH)))
+            } while (cadetBranchesCursor.moveToNext())
+        }
+        cadetBranchesCursor.close()
+
+        val swornMembersList = ArrayList<String>()
+        val swornMembersCursor = db.rawQuery("select ($COLUMN_SWORN_MEMBER) from $TABLE_HOUSES_SWORN_MEMBERS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        if (swornMembersCursor.moveToFirst() && swornMembersCursor.count > 0) {
+            do {
+                swornMembersList.add(swornMembersCursor.getString(swornMembersCursor.getColumnIndex(COLUMN_SWORN_MEMBER)))
+            } while (swornMembersCursor.moveToNext())
+        }
+        swornMembersCursor.close()
+
+        return HouseRes(
+                url = url,
+                fullName = fullName,
+                region = region,
+                coatOfArms = coatOfArms,
+                words = words,
+                titles = titlesList,
+                seats = seatsList,
+                currentLord = currentLord,
+                heir = heir,
+                overlord = overlord,
+                founded = founded,
+                founder = founder,
+                diedOut = diedOut,
+                ancestralWeapons = ancestralWeaponsList,
+                cadetBranches = cadetBranchesList,
+                swornMembers = swornMembersList
+        )
     }
 
     fun insertCharacter(db: SQLiteDatabase, character: CharacterRes) {

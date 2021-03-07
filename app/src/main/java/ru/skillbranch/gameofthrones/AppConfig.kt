@@ -10,5 +10,14 @@ object AppConfig {
             Pair("Baratheon", "House Baratheon of Dragonstone"),
             Pair("Martell", "House Nymeros Martell of Sunspear"))
 
+    val HOUSES_SHORT_NAMES = mapOf(
+            Pair("House Stark of Winterfell", "Stark"),
+            Pair("House Lannister of Casterly Rock", "Lannister"),
+            Pair("House Targaryen of King's Landing", "Targatyen"),
+            Pair("House Greyjoy of Pyke", "Greyjoy"),
+            Pair("House Tyrell of Highgarden", "Tyrell"),
+            Pair("House Baratheon of Dragonstone", "Baratheon"),
+            Pair("House Nymeros Martell of Sunspear", "Martell"))
+
     const val BASE_URL = "https://www.anapioficeandfire.com/api/"
 }
