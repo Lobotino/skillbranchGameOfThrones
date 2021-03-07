@@ -1,9 +1,10 @@
 package ru.skillbranch.gameofthrones.data
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
+import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import java.lang.Exception
 
 class SQLiteHelper(context: Context) :
@@ -203,5 +204,75 @@ class SQLiteHelper(context: Context) :
         //do nothing
     }
 
+    fun insertCharacter(db : SQLiteDatabase, character: CharacterRes) {
+        val characterValues = ContentValues()
+        characterValues.put(COLUMN_NAME, character.name)
+        characterValues.put(COLUMN_URL, character.url)
+        characterValues.put(COLUMN_GENDER, character.gender)
+        characterValues.put(COLUMN_CULTURE, character.culture)
+        characterValues.put(COLUMN_DIED, character.died)
+        characterValues.put(COLUMN_BORN, character.born)
+        characterValues.put(COLUMN_FATHER, character.father)
+        characterValues.put(COLUMN_MOTHER, character.mother)
+        characterValues.put(COLUMN_SPOUSE, character.spouse)
+        character.houseId?.let { characterValues.put(COLUMN_HOUSE_NAME, it) }
+        db.insert(TABLE_CHARACTERS, null, characterValues)
 
+        if(character.titles.isNotEmpty()) {
+            for(title in character.titles) {
+                val characterTitle = ContentValues()
+                characterTitle.put(COLUMN_CHARACTER_NAME, character.name)
+                characterTitle.put(COLUMN_TITLE, title)
+                db.insert(TABLE_CHARACTERS_TITLES, null, characterTitle)
+            }
+        }
+        if(character.aliases.isNotEmpty()) {
+            for (alias in character.aliases) {
+                val characterAlias = ContentValues()
+                characterAlias.put(COLUMN_CHARACTER_NAME, character.name)
+                characterAlias.put(COLUMN_ALIAS, alias)
+                db.insert(TABLE_CHARACTERS_ALIASES, null, characterAlias)
+            }
+        }
+        if(character.allegiances.isNotEmpty()) {
+            for (allegiance in character.allegiances) {
+                val characterAllegiance = ContentValues()
+                characterAllegiance.put(COLUMN_CHARACTER_NAME, character.name)
+                characterAllegiance.put(COLUMN_ALLEGIANCE, allegiance)
+                db.insert(TABLE_CHARACTERS_ALLEGIANCES, null, characterAllegiance)
+            }
+        }
+        if(character.books.isNotEmpty()) {
+            for (book in character.books) {
+                val characterBook = ContentValues()
+                characterBook.put(COLUMN_CHARACTER_NAME, character.name)
+                characterBook.put(COLUMN_BOOK, book)
+                db.insert(TABLE_CHARACTERS_BOOKS, null, characterBook)
+            }
+        }
+        if(character.povBooks.isNotEmpty()) {
+            for (book in character.povBooks) {
+                val characterBook = ContentValues()
+                characterBook.put(COLUMN_CHARACTER_NAME, character.name)
+                characterBook.put(COLUMN_BOOK, book.toString())
+                db.insert(TABLE_CHARACTERS_POV_BOOKS, null, characterBook)
+            }
+        }
+        if(character.tvSeries.isNotEmpty()) {
+            for (series in character.tvSeries) {
+                val tvSeries = ContentValues()
+                tvSeries.put(COLUMN_CHARACTER_NAME, character.name)
+                tvSeries.put(COLUMN_SERIES, series)
+                db.insert(TABLE_CHARACTERS_TV_SERIES, null, tvSeries)
+            }
+        }
+        if(character.playedBy.isNotEmpty()) {
+            for (playedBy in character.playedBy) {
+                val characterPlayedBy = ContentValues()
+                characterPlayedBy.put(COLUMN_CHARACTER_NAME, character.name)
+                characterPlayedBy.put(COLUMN_PLAYED_BY, playedBy)
+                db.insert(TABLE_CHARACTERS_PLAYED_BY, null, characterPlayedBy)
+            }
+        }
+    }
 }
