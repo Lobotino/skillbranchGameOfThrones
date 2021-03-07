@@ -1,14 +1,14 @@
 package ru.skillbranch.gameofthrones
 
 object AppConfig {
-    val NEED_HOUSES = arrayOf(
-        "House Stark of Winterfell",
-        "House Lannister of Casterly Rock",
-        "House Targaryen of King's Landing",
-        "House Greyjoy of Pyke",
-        "House Tyrell of Highgarden",
-        "House Baratheon of Dragonstone",
-        "House Nymeros Martell of Sunspear"
-    )
+    val HOUSES = mapOf(
+            Pair("Stark", "House Stark of Winterfell"),
+            Pair("Lannister", "House Lannister of Casterly Rock"),
+            Pair("Targatyen", "House Targaryen of King's Landing"),
+            Pair("Greyjoy", "House Greyjoy of Pyke"),
+            Pair("Tyrell", "House Tyrell of Highgarden"),
+            Pair("Baratheon", "House Baratheon of Dragonstone"),
+            Pair("Martell", "House Nymeros Martell of Sunspear"))
+
     const val BASE_URL = "https://www.anapioficeandfire.com/api/"
 }
