@@ -281,7 +281,7 @@ class SQLiteHelper(context: Context) :
         var diedOut = ""
 
         val houseCursor = db.rawQuery("SELECT * FROM $TABLE_HOUSES WHERE $COLUMN_NAME LIKE '$shortName'", null)
-        if (houseCursor.moveToFirst() && houseCursor.count > 0) {
+        if (houseCursor.moveToFirst()) {
             url = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_URL))
             fullName = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_FULL_NAME))
             region = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_REGION))
@@ -298,7 +298,7 @@ class SQLiteHelper(context: Context) :
 
         val titlesList = ArrayList<String>()
         val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_HOUSES_TITLES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
-        if (titlesCursor.moveToFirst() && titlesCursor.count > 0) {
+        if (titlesCursor.moveToFirst()) {
             do {
                 titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
             } while (titlesCursor.moveToNext())
@@ -307,7 +307,7 @@ class SQLiteHelper(context: Context) :
 
         val seatsList = ArrayList<String>()
         val seatsCursor = db.rawQuery("select ($COLUMN_SEAT) from $TABLE_HOUSES_SEATS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
-        if (seatsCursor.moveToFirst() && seatsCursor.count > 0) {
+        if (seatsCursor.moveToFirst()) {
             do {
                 seatsList.add(seatsCursor.getString(seatsCursor.getColumnIndex(COLUMN_SEAT)))
             } while (seatsCursor.moveToNext())
@@ -316,7 +316,7 @@ class SQLiteHelper(context: Context) :
 
         val ancestralWeaponsList = ArrayList<String>()
         val ancestralWeaponsCursor = db.rawQuery("select ($COLUMN_WEAPON) from $TABLE_HOUSES_ANCESTRAL_WEAPONS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
-        if (ancestralWeaponsCursor.moveToFirst() && ancestralWeaponsCursor.count > 0) {
+        if (ancestralWeaponsCursor.moveToFirst()) {
             do {
                 ancestralWeaponsList.add(ancestralWeaponsCursor.getString(ancestralWeaponsCursor.getColumnIndex(COLUMN_WEAPON)))
             } while (ancestralWeaponsCursor.moveToNext())
@@ -325,7 +325,7 @@ class SQLiteHelper(context: Context) :
 
         val cadetBranchesList = ArrayList<String>()
         val cadetBranchesCursor = db.rawQuery("select ($COLUMN_CADET_BRANCH) from $TABLE_HOUSES_CADET_BRANCHES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
-        if (cadetBranchesCursor.moveToFirst() && cadetBranchesCursor.count > 0) {
+        if (cadetBranchesCursor.moveToFirst()) {
             do {
                 cadetBranchesList.add(cadetBranchesCursor.getString(cadetBranchesCursor.getColumnIndex(COLUMN_CADET_BRANCH)))
             } while (cadetBranchesCursor.moveToNext())
@@ -334,7 +334,7 @@ class SQLiteHelper(context: Context) :
 
         val swornMembersList = ArrayList<String>()
         val swornMembersCursor = db.rawQuery("select ($COLUMN_SWORN_MEMBER) from $TABLE_HOUSES_SWORN_MEMBERS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
-        if (swornMembersCursor.moveToFirst() && swornMembersCursor.count > 0) {
+        if (swornMembersCursor.moveToFirst()) {
             do {
                 swornMembersList.add(swornMembersCursor.getString(swornMembersCursor.getColumnIndex(COLUMN_SWORN_MEMBER)))
             } while (swornMembersCursor.moveToNext())
@@ -448,7 +448,7 @@ class SQLiteHelper(context: Context) :
         var father = ""
         var mother = ""
         var spouse = ""
-        var house : String? = null
+        var house: String? = null
 
         val characterCursor = db.rawQuery("select * from " + TABLE_CHARACTERS + " WHERE " + BaseColumns._ID + " = " + id, null)
         if (characterCursor.moveToFirst() && characterCursor.count > 0) {
@@ -467,7 +467,7 @@ class SQLiteHelper(context: Context) :
 
         val titlesList = ArrayList<String>()
         val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_CHARACTERS_TITLES where ${BaseColumns._ID} = $id", null)
-        if (titlesCursor.moveToFirst() && titlesCursor.count > 0) {
+        if (titlesCursor.moveToFirst()) {
             do {
                 titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
             } while (titlesCursor.moveToNext())
@@ -476,7 +476,7 @@ class SQLiteHelper(context: Context) :
 
         val aliasesList = ArrayList<String>()
         val aliasesCursor = db.rawQuery("select ($COLUMN_ALIAS) from $TABLE_CHARACTERS_ALIASES where ${BaseColumns._ID} = $id", null)
-        if (aliasesCursor.moveToFirst() && aliasesCursor.count > 0) {
+        if (aliasesCursor.moveToFirst()) {
             do {
                 aliasesList.add(aliasesCursor.getString(aliasesCursor.getColumnIndex(COLUMN_ALIAS)))
             } while (aliasesCursor.moveToNext())
@@ -485,7 +485,7 @@ class SQLiteHelper(context: Context) :
 
         val allegiancesList = ArrayList<String>()
         val allegiancesCursor = db.rawQuery("select ($COLUMN_ALLEGIANCE) from $TABLE_CHARACTERS_ALLEGIANCES where ${BaseColumns._ID} = $id", null)
-        if (allegiancesCursor.moveToFirst() && allegiancesCursor.count > 0) {
+        if (allegiancesCursor.moveToFirst()) {
             do {
                 allegiancesList.add(allegiancesCursor.getString(allegiancesCursor.getColumnIndex(COLUMN_ALLEGIANCE)))
             } while (allegiancesCursor.moveToNext())
@@ -494,7 +494,7 @@ class SQLiteHelper(context: Context) :
 
         val booksList = ArrayList<String>()
         val booksCursor = db.rawQuery("select ($COLUMN_BOOK) from $TABLE_CHARACTERS_BOOKS where ${BaseColumns._ID} = $id", null)
-        if (booksCursor.moveToFirst() && booksCursor.count > 0) {
+        if (booksCursor.moveToFirst()) {
             do {
                 booksList.add(booksCursor.getString(booksCursor.getColumnIndex(COLUMN_BOOK)))
             } while (booksCursor.moveToNext())
@@ -503,7 +503,7 @@ class SQLiteHelper(context: Context) :
 
         val povBooksList = ArrayList<String>()
         val povBooksCursor = db.rawQuery("select ($COLUMN_BOOK) from $TABLE_CHARACTERS_POV_BOOKS where ${BaseColumns._ID} = $id", null)
-        if (povBooksCursor.moveToFirst() && povBooksCursor.count > 0) {
+        if (povBooksCursor.moveToFirst()) {
             do {
                 povBooksList.add(povBooksCursor.getString(povBooksCursor.getColumnIndex(COLUMN_BOOK)))
             } while (povBooksCursor.moveToNext())
@@ -512,7 +512,7 @@ class SQLiteHelper(context: Context) :
 
         val tvSeriesList = ArrayList<String>()
         val tvSeriesCursor = db.rawQuery("select ($COLUMN_SERIES) from $TABLE_CHARACTERS_TV_SERIES where ${BaseColumns._ID} = $id", null)
-        if (tvSeriesCursor.moveToFirst() && tvSeriesCursor.count > 0) {
+        if (tvSeriesCursor.moveToFirst()) {
             do {
                 tvSeriesList.add(tvSeriesCursor.getString(tvSeriesCursor.getColumnIndex(COLUMN_SERIES)))
             } while (tvSeriesCursor.moveToNext())
@@ -521,7 +521,7 @@ class SQLiteHelper(context: Context) :
 
         val playerByList = ArrayList<String>()
         val playedByCursor = db.rawQuery("select ($COLUMN_PLAYED_BY) from $TABLE_CHARACTERS_PLAYED_BY where ${BaseColumns._ID} = $id", null)
-        if (playedByCursor.moveToFirst() && playedByCursor.count > 0) {
+        if (playedByCursor.moveToFirst()) {
             do {
                 playerByList.add(playedByCursor.getString(playedByCursor.getColumnIndex(COLUMN_PLAYED_BY)))
             } while (playedByCursor.moveToNext())
@@ -546,5 +546,14 @@ class SQLiteHelper(context: Context) :
                 povBooks = povBooksList,
                 tvSeries = tvSeriesList,
                 playedBy = playerByList)
+    }
+
+    fun isEmptyDb(db: SQLiteDatabase): Boolean {
+        val sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';"
+        val cursor = db.rawQuery(sql, null)
+        val isEmpty = !cursor.moveToFirst()
+        cursor.close()
+
+        return isEmpty
     }
 }
