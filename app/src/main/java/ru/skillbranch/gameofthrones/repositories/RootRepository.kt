@@ -30,7 +30,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getAllHouses(result : (houses : List<HouseRes>) -> Unit) {
-        mainInteractor.getAllHousesOnline(result)
+        mainInteractor.getAllHousesOnline(result, {})
     }
 
     /**
@@ -92,7 +92,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun findCharactersByHouseName(name : String, result: (characters : List<CharacterItem>) -> Unit) {
-        mainInteractor.findCharacterByHouseName(name, result)
+        mainInteractor.findCharactersByHouseName(name, result)
     }
 
     /**

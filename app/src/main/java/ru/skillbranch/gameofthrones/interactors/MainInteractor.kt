@@ -12,6 +12,7 @@ import ru.skillbranch.gameofthrones.repositories.local.LocalCharactersRepository
 import ru.skillbranch.gameofthrones.repositories.local.LocalHousesRepository
 import ru.skillbranch.gameofthrones.repositories.remote.OnlineCharactersRepository
 import ru.skillbranch.gameofthrones.repositories.remote.OnlineHousesRepository
+import java.io.IOException
 import java.util.regex.Pattern
 
 class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
@@ -27,18 +28,22 @@ class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
     private var jobGetAllHouses: Job? = null
     private var jobGetNeedHouses: Job? = null
 
-    fun getAllHousesOnline(result: (houses: List<HouseRes>) -> Unit) {
+    fun getAllHousesOnline(result: (houses: List<HouseRes>) -> Unit, onError: (error : IOException) -> Unit) {
         jobGetAllHouses?.cancel()
         jobGetAllHouses = GlobalScope.launch(Dispatchers.IO) {
-            val resultList = ArrayList<HouseRes>()
-            var i: Long = 1
-            do {
-                val pageList = onlineHousesRepository.getHouses(i++, 50)
-                if (pageList.isNotEmpty()) {
-                    resultList.addAll(pageList)
-                }
-            } while (pageList.isNotEmpty())
-            result(resultList)
+            try {
+                val resultList = ArrayList<HouseRes>()
+                var i: Long = 1
+                do {
+                    val pageList = onlineHousesRepository.getHouses(i++, 50)
+                    if (pageList.isNotEmpty()) {
+                        resultList.addAll(pageList)
+                    }
+                } while (pageList.isNotEmpty())
+                result(resultList)
+            } catch (ex : IOException) {
+                onError(ex)
+            }
         }
     }
 
@@ -126,7 +131,7 @@ class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
         }
     }
 
-    fun findCharacterByHouseName(houseName : String, result: (characters : List<CharacterItem>) -> Unit) {
+    fun findCharactersByHouseName(houseName : String, result: (characters : List<CharacterItem>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             result(localCharactersRepository.getCharactersItems(houseName))
         }

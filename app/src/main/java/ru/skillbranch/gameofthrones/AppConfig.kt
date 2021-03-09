@@ -19,5 +19,7 @@ object AppConfig {
             Pair("House Baratheon of Dragonstone", "Baratheon"),
             Pair("House Nymeros Martell of Sunspear", "Martell"))
 
+    val HOUSES_NAMES_LIST = listOf("Stark" ,"Lannister", "Targatyen", "Greyjoy", "Tyrell", "Baratheon", "Martell")
+
     const val BASE_URL = "https://www.anapioficeandfire.com/api/"
 }
