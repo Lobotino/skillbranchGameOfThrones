@@ -1,9 +1,9 @@
-package ru.skillbranch.gameofthrones.repositories
+package ru.skillbranch.gameofthrones.repositories.remote
 
 import ru.skillbranch.gameofthrones.data.remote.GameOfThronesApi
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 
-class CharactersRepository(private val apiClient: GameOfThronesApi) {
+class OnlineCharactersRepository(private val apiClient: GameOfThronesApi) {
 
     fun getCharacterById(id : Long) : CharacterRes? {
         val call = apiClient.getCharacterInfo(id).execute()

@@ -5,7 +5,12 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.skillbranch.gameofthrones.AppConfig
+import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
+import ru.skillbranch.gameofthrones.data.local.entities.RelativeCharacter
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 import java.lang.Exception
@@ -548,12 +553,106 @@ class SQLiteHelper(context: Context) :
                 playedBy = playerByList)
     }
 
-    fun isEmptyDb(db: SQLiteDatabase): Boolean {
-        val sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';"
-        val cursor = db.rawQuery(sql, null)
-        val isEmpty = !cursor.moveToFirst()
-        cursor.close()
+    fun getCharacterFullById(db: SQLiteDatabase, id : String, parseParentIdFromUrl: (String) -> Long) : CharacterFull {
+        var name = ""
+        var born = ""
+        var died = ""
+        var fatherUrl = ""
+        var motherUrl = ""
+        var words = ""
+        var house = ""
 
-        return isEmpty
+        val characterCursor = db.rawQuery("SELECT ($COLUMN_NAME, $COLUMN_HOUSE_NAME, $COLUMN_BORN, $COLUMN_DIED, $COLUMN_FATHER, $COLUMN_MOTHER) " +
+                "FROM $TABLE_CHARACTERS WHERE ${BaseColumns._ID} = $id ", null)
+        if (characterCursor.moveToFirst()) {
+            name = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_NAME))
+            born = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_BORN))
+            died = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_DIED))
+            house = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_HOUSE_NAME))
+            fatherUrl = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_FATHER))
+            motherUrl = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_MOTHER))
+        }
+        characterCursor.close()
+
+        val houseCursor = db.rawQuery("SELECT ($COLUMN_WORDS) FROM $TABLE_HOUSES WHERE $COLUMN_NAME LIKE $house", null)
+        if (houseCursor.moveToFirst()) {
+            words = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_WORDS))
+        }
+        houseCursor.close()
+
+        val titlesList = ArrayList<String>()
+        val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_CHARACTERS_TITLES where ${BaseColumns._ID} = $id", null)
+        if (titlesCursor.moveToFirst()) {
+            do {
+                titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
+            } while (titlesCursor.moveToNext())
+        }
+        titlesCursor.close()
+
+        val aliasesList = ArrayList<String>()
+        val aliasesCursor = db.rawQuery("select ($COLUMN_ALIAS) from $TABLE_CHARACTERS_ALIASES where ${BaseColumns._ID} = $id", null)
+        if (aliasesCursor.moveToFirst()) {
+            do {
+                aliasesList.add(aliasesCursor.getString(aliasesCursor.getColumnIndex(COLUMN_ALIAS)))
+            } while (aliasesCursor.moveToNext())
+        }
+        aliasesCursor.close()
+
+        return CharacterFull(
+                id = id,
+                name = name,
+                words = words,
+                born = born,
+                died = died,
+                titles = titlesList,
+                aliases = aliasesList,
+                house = house,
+                father = getParent(db, parseParentIdFromUrl(fatherUrl)),
+                mother = getParent(db, parseParentIdFromUrl(motherUrl))
+        )
+    }
+
+    private fun getParent(db : SQLiteDatabase, id : Long) : RelativeCharacter? {
+        val parentCursor = db.rawQuery("SELECT ($COLUMN_NAME, $COLUMN_HOUSE_NAME) FROM $TABLE_CHARACTERS WHERE ${BaseColumns._ID} = $id", null)
+        parentCursor.close()
+        return if (parentCursor.moveToFirst()) {
+            RelativeCharacter(
+                    id = id.toString(),
+                    name = parentCursor.getString(parentCursor.getColumnIndex(COLUMN_NAME)),
+                    house = parentCursor.getString(parentCursor.getColumnIndex(COLUMN_HOUSE_NAME))
+            )
+        } else {
+            null
+        }
+    }
+
+    fun isEmptyDb(db: SQLiteDatabase, onComplete: (Boolean) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';"
+            val cursor = db.rawQuery(sql, null)
+            val isEmpty = !cursor.moveToFirst()
+            cursor.close()
+
+            onComplete(isEmpty)
+        }
+    }
+
+    fun dropDb(db : SQLiteDatabase, onComplete: () -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            db.delete(TABLE_CHARACTERS, null, null)
+            db.delete(TABLE_CHARACTERS_PLAYED_BY, null, null)
+            db.delete(TABLE_CHARACTERS_TV_SERIES, null, null)
+            db.delete(TABLE_CHARACTERS_BOOKS, null, null)
+            db.delete(TABLE_CHARACTERS_ALLEGIANCES, null, null)
+            db.delete(TABLE_CHARACTERS_ALIASES, null, null)
+            db.delete(TABLE_CHARACTERS_TITLES, null, null)
+            db.delete(TABLE_HOUSES, null, null)
+            db.delete(TABLE_HOUSES_SWORN_MEMBERS, null, null)
+            db.delete(TABLE_HOUSES_CADET_BRANCHES, null, null)
+            db.delete(TABLE_HOUSES_ANCESTRAL_WEAPONS, null, null)
+            db.delete(TABLE_HOUSES_SEATS, null, null)
+            db.delete(TABLE_HOUSES_TITLES, null, null)
+            onComplete()
+        }
     }
 }

@@ -1,17 +1,28 @@
 package ru.skillbranch.gameofthrones.repositories
 
 import androidx.annotation.VisibleForTesting
+import ru.skillbranch.gameofthrones.App
+import ru.skillbranch.gameofthrones.data.SQLiteHelper
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
 import ru.skillbranch.gameofthrones.data.remote.GameOfThronesClient
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
-import ru.skillbranch.gameofthrones.interactors.HousesInteractor
+import ru.skillbranch.gameofthrones.interactors.MainInteractor
+import ru.skillbranch.gameofthrones.repositories.local.LocalCharactersRepository
+import ru.skillbranch.gameofthrones.repositories.local.LocalHousesRepository
+import ru.skillbranch.gameofthrones.repositories.remote.OnlineCharactersRepository
+import ru.skillbranch.gameofthrones.repositories.remote.OnlineHousesRepository
 
 object RootRepository {
 
+    private val sqliteHelper = SQLiteHelper[App.app!!.getContext()]
     private val apiClient = GameOfThronesClient().getApiClient()
-    private val housesInteractor = HousesInteractor(HousesRepository(apiClient), CharactersRepository(apiClient))
+    private val mainInteractor = MainInteractor(
+            OnlineHousesRepository(apiClient),
+            OnlineCharactersRepository(apiClient),
+            LocalHousesRepository(App.app!!.getContext()),
+            LocalCharactersRepository(App.app!!.getContext()))
 
     /**
      * Получение данных о всех домах из сети
@@ -19,7 +30,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getAllHouses(result : (houses : List<HouseRes>) -> Unit) {
-        housesInteractor.getAllHouses(result)
+        mainInteractor.getAllHousesOnline(result)
     }
 
     /**
@@ -29,7 +40,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouses(vararg houseNames: String, result : (houses : List<HouseRes>) -> Unit) {
-        housesInteractor.getNeedHouses(*houseNames, result = result)
+        mainInteractor.getNeedHousesOnline(*houseNames, result = result)
     }
 
     /**
@@ -39,7 +50,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouseWithCharacters(vararg houseNames: String, result : (houses : List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        housesInteractor.getOnlineHousesAndCharacters(*houseNames, result = result)
+        mainInteractor.getHousesAndCharactersOnline(*houseNames, result = result)
     }
 
     /**
@@ -50,7 +61,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun insertHouses(houses : List<HouseRes>, complete: () -> Unit) {
-        //TODO implement me
+        mainInteractor.saveHousesLocal(houses = houses.map {it}.toTypedArray(), onComplete = complete)
     }
 
     /**
@@ -61,7 +72,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun insertCharacters(Characters : List<CharacterRes>, complete: () -> Unit) {
-        //TODO implement me
+        mainInteractor.saveCharactersLocal(characters = Characters.map {it}.toTypedArray(), onComplete = complete)
     }
 
     /**
@@ -70,7 +81,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun dropDb(complete: () -> Unit) {
-        //TODO implement me
+        sqliteHelper.dropDb(sqliteHelper.writableDatabase, complete)
     }
 
     /**
@@ -92,7 +103,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun findCharacterFullById(id : String, result: (character : CharacterFull) -> Unit) {
-        //TODO implement me
+        mainInteractor.findCharacterFullById(id, result)
     }
 
     /**
@@ -100,7 +111,7 @@ object RootRepository {
      * @param result - колбек о завершении очистки db
      */
     fun isNeedUpdate(result: (isNeed : Boolean) -> Unit){
-        //TODO implement me
+        sqliteHelper.isEmptyDb(sqliteHelper.readableDatabase, result)
     }
 
 }
