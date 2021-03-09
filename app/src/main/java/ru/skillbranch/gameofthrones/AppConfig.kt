@@ -1,7 +1,7 @@
 package ru.skillbranch.gameofthrones
 
 object AppConfig {
-    val HOUSES = mapOf(
+    val HOUSES_LONG_NAME = mapOf(
             Pair("Stark", "House Stark of Winterfell"),
             Pair("Lannister", "House Lannister of Casterly Rock"),
             Pair("Targatyen", "House Targaryen of King's Landing"),

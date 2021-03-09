@@ -5,6 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
+import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
 import ru.skillbranch.gameofthrones.repositories.local.LocalCharactersRepository
@@ -114,14 +115,20 @@ class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
 
     fun saveCharactersLocal(vararg characters: CharacterRes, onComplete: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            localCharactersRepository.saveCharacters(*characters)
+            localCharactersRepository.saveCharacters(*characters, parseParentIdFromUrl = ::parseCharacterUrl)
             onComplete()
         }
     }
 
     fun findCharacterFullById(id : String, result: (character : CharacterFull) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            result(localCharactersRepository.getFullCharacter(id, ::parseCharacterUrl))
+            result(localCharactersRepository.getFullCharacter(id, parseParentIdFromUrl = ::parseCharacterUrl))
+        }
+    }
+
+    fun findCharacterByHouseName(houseName : String, result: (characters : List<CharacterItem>) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            result(localCharactersRepository.getCharactersItems(houseName))
         }
     }
 }

@@ -92,7 +92,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun findCharactersByHouseName(name : String, result: (characters : List<CharacterItem>) -> Unit) {
-        //TODO implement me
+        mainInteractor.findCharacterByHouseName(name, result)
     }
 
     /**

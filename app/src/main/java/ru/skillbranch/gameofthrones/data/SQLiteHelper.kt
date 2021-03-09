@@ -4,12 +4,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.provider.BaseColumns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.skillbranch.gameofthrones.AppConfig
 import ru.skillbranch.gameofthrones.data.local.entities.CharacterFull
+import ru.skillbranch.gameofthrones.data.local.entities.CharacterItem
 import ru.skillbranch.gameofthrones.data.local.entities.RelativeCharacter
 import ru.skillbranch.gameofthrones.data.remote.res.CharacterRes
 import ru.skillbranch.gameofthrones.data.remote.res.HouseRes
@@ -37,6 +37,8 @@ class SQLiteHelper(context: Context) :
         private const val TABLE_CHARACTERS_POV_BOOKS = "characters_pov_books"
         private const val TABLE_CHARACTERS_TV_SERIES = "characters_tv_series"
         private const val TABLE_CHARACTERS_PLAYED_BY = "characters_played_by"
+
+        private const val COLUMN_ID = "id"
 
         //houses region
         private const val COLUMN_URL = "url"
@@ -121,7 +123,7 @@ class SQLiteHelper(context: Context) :
         //characters region
         private const val TABLE_CHARACTERS_SCRIPT = "create table " +
                 TABLE_CHARACTERS + " (" +
-                BaseColumns._ID + " integer primary key autoincrement, " +
+                COLUMN_ID + " integer primary key, " +
                 COLUMN_NAME + " text not null, " +
                 COLUMN_URL + " text not null, " +
                 COLUMN_GENDER + " text not null, " +
@@ -135,37 +137,37 @@ class SQLiteHelper(context: Context) :
 
         private const val TABLE_CHARACTERS_TITLES_SCRIPT = "create table " +
                 TABLE_CHARACTERS_TITLES + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_TITLE + " text not null)"
 
         private const val TABLE_CHARACTERS_ALIASES_SCRIPT = "create table " +
                 TABLE_CHARACTERS_ALIASES + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_ALIAS + " text not null)"
 
         private const val TABLE_CHARACTERS_ALLEGIANCES_SCRIPT = "create table " +
                 TABLE_CHARACTERS_ALLEGIANCES + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_ALLEGIANCE + " text not null)"
 
         private const val TABLE_CHARACTERS_BOOKS_SCRIPT = "create table " +
                 TABLE_CHARACTERS_BOOKS + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_BOOK + " text not null)"
 
         private const val TABLE_CHARACTERS_POV_BOOKS_SCRIPT = "create table " +
                 TABLE_CHARACTERS_POV_BOOKS + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_BOOK + " text not null)"
 
         private const val TABLE_CHARACTERS_TV_SERIES_SCRIPT = "create table " +
                 TABLE_CHARACTERS_TV_SERIES + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_SERIES + " text not null)"
 
         private const val TABLE_CHARACTERS_PLAYED_BY_SCRIPT = "create table " +
                 TABLE_CHARACTERS_PLAYED_BY + " (" +
-                BaseColumns._ID + " integer not null, " +
+                COLUMN_ID + " integer not null, " +
                 COLUMN_PLAYED_BY + " text not null)"
         //characters region end
 
@@ -302,7 +304,7 @@ class SQLiteHelper(context: Context) :
         houseCursor.close()
 
         val titlesList = ArrayList<String>()
-        val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_HOUSES_TITLES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        val titlesCursor = db.rawQuery("SELECT $COLUMN_TITLE FROM $TABLE_HOUSES_TITLES WHERE $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
         if (titlesCursor.moveToFirst()) {
             do {
                 titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
@@ -311,7 +313,7 @@ class SQLiteHelper(context: Context) :
         titlesCursor.close()
 
         val seatsList = ArrayList<String>()
-        val seatsCursor = db.rawQuery("select ($COLUMN_SEAT) from $TABLE_HOUSES_SEATS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        val seatsCursor = db.rawQuery("SELECT $COLUMN_SEAT FROM $TABLE_HOUSES_SEATS WHERE $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
         if (seatsCursor.moveToFirst()) {
             do {
                 seatsList.add(seatsCursor.getString(seatsCursor.getColumnIndex(COLUMN_SEAT)))
@@ -320,7 +322,7 @@ class SQLiteHelper(context: Context) :
         seatsCursor.close()
 
         val ancestralWeaponsList = ArrayList<String>()
-        val ancestralWeaponsCursor = db.rawQuery("select ($COLUMN_WEAPON) from $TABLE_HOUSES_ANCESTRAL_WEAPONS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        val ancestralWeaponsCursor = db.rawQuery("SELECT $COLUMN_WEAPON FROM $TABLE_HOUSES_ANCESTRAL_WEAPONS WHERE $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
         if (ancestralWeaponsCursor.moveToFirst()) {
             do {
                 ancestralWeaponsList.add(ancestralWeaponsCursor.getString(ancestralWeaponsCursor.getColumnIndex(COLUMN_WEAPON)))
@@ -329,7 +331,7 @@ class SQLiteHelper(context: Context) :
         ancestralWeaponsCursor.close()
 
         val cadetBranchesList = ArrayList<String>()
-        val cadetBranchesCursor = db.rawQuery("select ($COLUMN_CADET_BRANCH) from $TABLE_HOUSES_CADET_BRANCHES where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        val cadetBranchesCursor = db.rawQuery("SELECT $COLUMN_CADET_BRANCH FROM $TABLE_HOUSES_CADET_BRANCHES WHERE $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
         if (cadetBranchesCursor.moveToFirst()) {
             do {
                 cadetBranchesList.add(cadetBranchesCursor.getString(cadetBranchesCursor.getColumnIndex(COLUMN_CADET_BRANCH)))
@@ -338,7 +340,7 @@ class SQLiteHelper(context: Context) :
         cadetBranchesCursor.close()
 
         val swornMembersList = ArrayList<String>()
-        val swornMembersCursor = db.rawQuery("select ($COLUMN_SWORN_MEMBER) from $TABLE_HOUSES_SWORN_MEMBERS where $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
+        val swornMembersCursor = db.rawQuery("SELECT $COLUMN_SWORN_MEMBER FROM $TABLE_HOUSES_SWORN_MEMBERS WHERE $COLUMN_HOUSE_NAME LIKE '$shortName'", null)
         if (swornMembersCursor.moveToFirst()) {
             do {
                 swornMembersList.add(swornMembersCursor.getString(swornMembersCursor.getColumnIndex(COLUMN_SWORN_MEMBER)))
@@ -366,8 +368,9 @@ class SQLiteHelper(context: Context) :
         )
     }
 
-    fun insertCharacter(db: SQLiteDatabase, character: CharacterRes) {
+    fun insertCharacter(db: SQLiteDatabase, character: CharacterRes, parseParentIdFromUrl: (String) -> Long) {
         val characterValues = ContentValues()
+        characterValues.put(COLUMN_ID, parseParentIdFromUrl(character.url))
         characterValues.put(COLUMN_NAME, character.name)
         characterValues.put(COLUMN_URL, character.url)
         characterValues.put(COLUMN_GENDER, character.gender)
@@ -380,7 +383,7 @@ class SQLiteHelper(context: Context) :
         character.houseId?.let { characterValues.put(COLUMN_HOUSE_NAME, it) }
         db.insert(TABLE_CHARACTERS, null, characterValues)
 
-        val idCursor = db.query(TABLE_CHARACTERS, listOf(BaseColumns._ID).toTypedArray(), "$COLUMN_NAME LIKE ?", listOf(character.name).toTypedArray(), null, null, null)
+        val idCursor = db.query(TABLE_CHARACTERS, listOf(COLUMN_ID).toTypedArray(), "$COLUMN_NAME LIKE ?", listOf(character.name).toTypedArray(), null, null, null)
         idCursor.moveToFirst()
         val characterId = idCursor.getInt(0)
         idCursor.close()
@@ -388,7 +391,7 @@ class SQLiteHelper(context: Context) :
         if (character.titles.isNotEmpty()) {
             for (title in character.titles) {
                 val characterTitle = ContentValues()
-                characterTitle.put(BaseColumns._ID, characterId)
+                characterTitle.put(COLUMN_ID, characterId)
                 characterTitle.put(COLUMN_TITLE, title)
                 db.insert(TABLE_CHARACTERS_TITLES, null, characterTitle)
             }
@@ -396,7 +399,7 @@ class SQLiteHelper(context: Context) :
         if (character.aliases.isNotEmpty()) {
             for (alias in character.aliases) {
                 val characterAlias = ContentValues()
-                characterAlias.put(BaseColumns._ID, characterId)
+                characterAlias.put(COLUMN_ID, characterId)
                 characterAlias.put(COLUMN_ALIAS, alias)
                 db.insert(TABLE_CHARACTERS_ALIASES, null, characterAlias)
             }
@@ -404,7 +407,7 @@ class SQLiteHelper(context: Context) :
         if (character.allegiances.isNotEmpty()) {
             for (allegiance in character.allegiances) {
                 val characterAllegiance = ContentValues()
-                characterAllegiance.put(BaseColumns._ID, characterId)
+                characterAllegiance.put(COLUMN_ID, characterId)
                 characterAllegiance.put(COLUMN_ALLEGIANCE, allegiance)
                 db.insert(TABLE_CHARACTERS_ALLEGIANCES, null, characterAllegiance)
             }
@@ -412,7 +415,7 @@ class SQLiteHelper(context: Context) :
         if (character.books.isNotEmpty()) {
             for (book in character.books) {
                 val characterBook = ContentValues()
-                characterBook.put(BaseColumns._ID, characterId)
+                characterBook.put(COLUMN_ID, characterId)
                 characterBook.put(COLUMN_BOOK, book)
                 db.insert(TABLE_CHARACTERS_BOOKS, null, characterBook)
             }
@@ -420,7 +423,7 @@ class SQLiteHelper(context: Context) :
         if (character.povBooks.isNotEmpty()) {
             for (book in character.povBooks) {
                 val characterBook = ContentValues()
-                characterBook.put(BaseColumns._ID, characterId)
+                characterBook.put(COLUMN_ID, characterId)
                 characterBook.put(COLUMN_BOOK, book.toString())
                 db.insert(TABLE_CHARACTERS_POV_BOOKS, null, characterBook)
             }
@@ -428,7 +431,7 @@ class SQLiteHelper(context: Context) :
         if (character.tvSeries.isNotEmpty()) {
             for (series in character.tvSeries) {
                 val tvSeries = ContentValues()
-                tvSeries.put(BaseColumns._ID, characterId)
+                tvSeries.put(COLUMN_ID, characterId)
                 tvSeries.put(COLUMN_SERIES, series)
                 db.insert(TABLE_CHARACTERS_TV_SERIES, null, tvSeries)
             }
@@ -436,7 +439,7 @@ class SQLiteHelper(context: Context) :
         if (character.playedBy.isNotEmpty()) {
             for (playedBy in character.playedBy) {
                 val characterPlayedBy = ContentValues()
-                characterPlayedBy.put(BaseColumns._ID, characterId)
+                characterPlayedBy.put(COLUMN_ID, characterId)
                 characterPlayedBy.put(COLUMN_PLAYED_BY, playedBy)
                 db.insert(TABLE_CHARACTERS_PLAYED_BY, null, characterPlayedBy)
             }
@@ -455,7 +458,7 @@ class SQLiteHelper(context: Context) :
         var spouse = ""
         var house: String? = null
 
-        val characterCursor = db.rawQuery("select * from " + TABLE_CHARACTERS + " WHERE " + BaseColumns._ID + " = " + id, null)
+        val characterCursor = db.rawQuery("SELECT * FROM $TABLE_CHARACTERS WHERE $COLUMN_ID = $id", null)
         if (characterCursor.moveToFirst() && characterCursor.count > 0) {
             name = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_NAME))
             url = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_URL))
@@ -471,7 +474,7 @@ class SQLiteHelper(context: Context) :
         characterCursor.close()
 
         val titlesList = ArrayList<String>()
-        val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_CHARACTERS_TITLES where ${BaseColumns._ID} = $id", null)
+        val titlesCursor = db.rawQuery("SELECT $COLUMN_TITLE FROM $TABLE_CHARACTERS_TITLES WHERE $COLUMN_ID = $id", null)
         if (titlesCursor.moveToFirst()) {
             do {
                 titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
@@ -480,7 +483,7 @@ class SQLiteHelper(context: Context) :
         titlesCursor.close()
 
         val aliasesList = ArrayList<String>()
-        val aliasesCursor = db.rawQuery("select ($COLUMN_ALIAS) from $TABLE_CHARACTERS_ALIASES where ${BaseColumns._ID} = $id", null)
+        val aliasesCursor = db.rawQuery("SELECT $COLUMN_ALIAS FROM $TABLE_CHARACTERS_ALIASES WHERE $COLUMN_ID = $id", null)
         if (aliasesCursor.moveToFirst()) {
             do {
                 aliasesList.add(aliasesCursor.getString(aliasesCursor.getColumnIndex(COLUMN_ALIAS)))
@@ -489,7 +492,7 @@ class SQLiteHelper(context: Context) :
         aliasesCursor.close()
 
         val allegiancesList = ArrayList<String>()
-        val allegiancesCursor = db.rawQuery("select ($COLUMN_ALLEGIANCE) from $TABLE_CHARACTERS_ALLEGIANCES where ${BaseColumns._ID} = $id", null)
+        val allegiancesCursor = db.rawQuery("SELECT $COLUMN_ALLEGIANCE FROM $TABLE_CHARACTERS_ALLEGIANCES WHERE $COLUMN_ID = $id", null)
         if (allegiancesCursor.moveToFirst()) {
             do {
                 allegiancesList.add(allegiancesCursor.getString(allegiancesCursor.getColumnIndex(COLUMN_ALLEGIANCE)))
@@ -498,7 +501,7 @@ class SQLiteHelper(context: Context) :
         allegiancesCursor.close()
 
         val booksList = ArrayList<String>()
-        val booksCursor = db.rawQuery("select ($COLUMN_BOOK) from $TABLE_CHARACTERS_BOOKS where ${BaseColumns._ID} = $id", null)
+        val booksCursor = db.rawQuery("SELECT $COLUMN_BOOK FROM $TABLE_CHARACTERS_BOOKS WHERE $COLUMN_ID = $id", null)
         if (booksCursor.moveToFirst()) {
             do {
                 booksList.add(booksCursor.getString(booksCursor.getColumnIndex(COLUMN_BOOK)))
@@ -507,7 +510,7 @@ class SQLiteHelper(context: Context) :
         booksCursor.close()
 
         val povBooksList = ArrayList<String>()
-        val povBooksCursor = db.rawQuery("select ($COLUMN_BOOK) from $TABLE_CHARACTERS_POV_BOOKS where ${BaseColumns._ID} = $id", null)
+        val povBooksCursor = db.rawQuery("SELECT $COLUMN_BOOK FROM $TABLE_CHARACTERS_POV_BOOKS WHERE $COLUMN_ID = $id", null)
         if (povBooksCursor.moveToFirst()) {
             do {
                 povBooksList.add(povBooksCursor.getString(povBooksCursor.getColumnIndex(COLUMN_BOOK)))
@@ -516,7 +519,7 @@ class SQLiteHelper(context: Context) :
         povBooksCursor.close()
 
         val tvSeriesList = ArrayList<String>()
-        val tvSeriesCursor = db.rawQuery("select ($COLUMN_SERIES) from $TABLE_CHARACTERS_TV_SERIES where ${BaseColumns._ID} = $id", null)
+        val tvSeriesCursor = db.rawQuery("SELECT $COLUMN_SERIES FROM $TABLE_CHARACTERS_TV_SERIES WHERE $COLUMN_ID = $id", null)
         if (tvSeriesCursor.moveToFirst()) {
             do {
                 tvSeriesList.add(tvSeriesCursor.getString(tvSeriesCursor.getColumnIndex(COLUMN_SERIES)))
@@ -525,7 +528,7 @@ class SQLiteHelper(context: Context) :
         tvSeriesCursor.close()
 
         val playerByList = ArrayList<String>()
-        val playedByCursor = db.rawQuery("select ($COLUMN_PLAYED_BY) from $TABLE_CHARACTERS_PLAYED_BY where ${BaseColumns._ID} = $id", null)
+        val playedByCursor = db.rawQuery("SELECT $COLUMN_PLAYED_BY FROM $TABLE_CHARACTERS_PLAYED_BY WHERE $COLUMN_ID = $id", null)
         if (playedByCursor.moveToFirst()) {
             do {
                 playerByList.add(playedByCursor.getString(playedByCursor.getColumnIndex(COLUMN_PLAYED_BY)))
@@ -553,35 +556,35 @@ class SQLiteHelper(context: Context) :
                 playedBy = playerByList)
     }
 
-    fun getCharacterFullById(db: SQLiteDatabase, id : String, parseParentIdFromUrl: (String) -> Long) : CharacterFull {
+    fun getCharacterFullById(db: SQLiteDatabase, id : String, parseParentIdFROMUrl: (String) -> Long) : CharacterFull {
         var name = ""
         var born = ""
         var died = ""
         var fatherUrl = ""
         var motherUrl = ""
         var words = ""
-        var house = ""
+        var shortHouseName = ""
 
-        val characterCursor = db.rawQuery("SELECT ($COLUMN_NAME, $COLUMN_HOUSE_NAME, $COLUMN_BORN, $COLUMN_DIED, $COLUMN_FATHER, $COLUMN_MOTHER) " +
-                "FROM $TABLE_CHARACTERS WHERE ${BaseColumns._ID} = $id ", null)
+        val characterCursor = db.rawQuery("SELECT $COLUMN_NAME, $COLUMN_HOUSE_NAME, $COLUMN_BORN, $COLUMN_DIED, $COLUMN_FATHER, $COLUMN_MOTHER " +
+                "FROM $TABLE_CHARACTERS WHERE $COLUMN_ID = $id ", null)
         if (characterCursor.moveToFirst()) {
             name = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_NAME))
             born = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_BORN))
             died = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_DIED))
-            house = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_HOUSE_NAME))
+            shortHouseName = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_HOUSE_NAME))
             fatherUrl = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_FATHER))
             motherUrl = characterCursor.getString(characterCursor.getColumnIndex(COLUMN_MOTHER))
         }
         characterCursor.close()
 
-        val houseCursor = db.rawQuery("SELECT ($COLUMN_WORDS) FROM $TABLE_HOUSES WHERE $COLUMN_NAME LIKE $house", null)
+        val houseCursor = db.rawQuery("SELECT $COLUMN_WORDS FROM $TABLE_HOUSES WHERE $COLUMN_NAME LIKE '$shortHouseName'", null)
         if (houseCursor.moveToFirst()) {
             words = houseCursor.getString(houseCursor.getColumnIndex(COLUMN_WORDS))
         }
         houseCursor.close()
 
         val titlesList = ArrayList<String>()
-        val titlesCursor = db.rawQuery("select ($COLUMN_TITLE) from $TABLE_CHARACTERS_TITLES where ${BaseColumns._ID} = $id", null)
+        val titlesCursor = db.rawQuery("SELECT $COLUMN_TITLE FROM $TABLE_CHARACTERS_TITLES WHERE $COLUMN_ID = $id", null)
         if (titlesCursor.moveToFirst()) {
             do {
                 titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
@@ -590,7 +593,7 @@ class SQLiteHelper(context: Context) :
         titlesCursor.close()
 
         val aliasesList = ArrayList<String>()
-        val aliasesCursor = db.rawQuery("select ($COLUMN_ALIAS) from $TABLE_CHARACTERS_ALIASES where ${BaseColumns._ID} = $id", null)
+        val aliasesCursor = db.rawQuery("SELECT $COLUMN_ALIAS FROM $TABLE_CHARACTERS_ALIASES WHERE $COLUMN_ID = $id", null)
         if (aliasesCursor.moveToFirst()) {
             do {
                 aliasesList.add(aliasesCursor.getString(aliasesCursor.getColumnIndex(COLUMN_ALIAS)))
@@ -606,52 +609,119 @@ class SQLiteHelper(context: Context) :
                 died = died,
                 titles = titlesList,
                 aliases = aliasesList,
-                house = house,
-                father = getParent(db, parseParentIdFromUrl(fatherUrl)),
-                mother = getParent(db, parseParentIdFromUrl(motherUrl))
+                house = shortHouseName,
+                father = getParent(db, parseParentIdFROMUrl(fatherUrl)),
+                mother = getParent(db, parseParentIdFROMUrl(motherUrl))
         )
     }
 
     private fun getParent(db : SQLiteDatabase, id : Long) : RelativeCharacter? {
-        val parentCursor = db.rawQuery("SELECT ($COLUMN_NAME, $COLUMN_HOUSE_NAME) FROM $TABLE_CHARACTERS WHERE ${BaseColumns._ID} = $id", null)
-        parentCursor.close()
+        val parentCursor = db.rawQuery("SELECT $COLUMN_NAME, $COLUMN_HOUSE_NAME FROM $TABLE_CHARACTERS WHERE $COLUMN_ID = $id", null)
         return if (parentCursor.moveToFirst()) {
-            RelativeCharacter(
+            val result = RelativeCharacter(
                     id = id.toString(),
                     name = parentCursor.getString(parentCursor.getColumnIndex(COLUMN_NAME)),
                     house = parentCursor.getString(parentCursor.getColumnIndex(COLUMN_HOUSE_NAME))
             )
+            parentCursor.close()
+            result
         } else {
+            parentCursor.close()
             null
         }
     }
 
+    fun getCharactersItemsForHouse(db : SQLiteDatabase, shortHouseName : String) : List<CharacterItem> {
+        val resultList = ArrayList<CharacterItem>()
+
+        val charactersCursor = db.rawQuery("SELECT $COLUMN_ID, $COLUMN_NAME FROM $TABLE_CHARACTERS WHERE $COLUMN_HOUSE_NAME LIKE '$shortHouseName'", null)
+        if (charactersCursor.moveToFirst()) {
+            do {
+                val id = charactersCursor.getString(charactersCursor.getColumnIndex(COLUMN_ID))
+                val name = charactersCursor.getString(charactersCursor.getColumnIndex(COLUMN_NAME))
+
+                val titlesList = ArrayList<String>()
+                val titlesCursor = db.rawQuery("SELECT $COLUMN_TITLE FROM $TABLE_CHARACTERS_TITLES WHERE $COLUMN_ID = $id", null)
+                if (titlesCursor.moveToFirst()) {
+                    do {
+                        titlesList.add(titlesCursor.getString(titlesCursor.getColumnIndex(COLUMN_TITLE)))
+                    } while (titlesCursor.moveToNext())
+                }
+                titlesCursor.close()
+
+                val aliasesList = ArrayList<String>()
+                val aliasesCursor = db.rawQuery("SELECT $COLUMN_ALIAS FROM $TABLE_CHARACTERS_ALIASES WHERE $COLUMN_ID = $id", null)
+                if (aliasesCursor.moveToFirst()) {
+                    do {
+                        aliasesList.add(aliasesCursor.getString(aliasesCursor.getColumnIndex(COLUMN_ALIAS)))
+                    } while (aliasesCursor.moveToNext())
+                }
+                aliasesCursor.close()
+
+                resultList.add(CharacterItem(
+                        id = id,
+                        name = name,
+                        house = shortHouseName,
+                        titles = titlesList,
+                        aliases = aliasesList
+                ))
+            } while (charactersCursor.moveToNext())
+        }
+        charactersCursor.close()
+
+        return resultList
+    }
+
     fun isEmptyDb(db: SQLiteDatabase, onComplete: (Boolean) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            val sql = "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name != 'android_metadata' AND name != 'sqlite_sequence';"
-            val cursor = db.rawQuery(sql, null)
-            val isEmpty = !cursor.moveToFirst()
-            cursor.close()
+            val allTables = listOf(TABLE_CHARACTERS,
+                    TABLE_CHARACTERS_PLAYED_BY,
+                    TABLE_CHARACTERS_TV_SERIES,
+                    TABLE_CHARACTERS_BOOKS,
+                    TABLE_CHARACTERS_ALLEGIANCES,
+                    TABLE_CHARACTERS_ALIASES,
+                    TABLE_CHARACTERS_TITLES,
+                    TABLE_HOUSES,
+                    TABLE_HOUSES_SWORN_MEMBERS,
+                    TABLE_HOUSES_CADET_BRANCHES,
+                    TABLE_HOUSES_ANCESTRAL_WEAPONS,
+                    TABLE_HOUSES_SEATS,
+                    TABLE_HOUSES_TITLES)
 
-            onComplete(isEmpty)
+            for(table in allTables) {
+                val cursor = db.rawQuery("SELECT count(*) FROM $table", null)
+                cursor.moveToFirst()
+                val isEmpty = cursor.getInt(0) == 0
+                cursor.close()
+
+                if (!isEmpty) {
+                    onComplete(false)
+                    return@launch
+                }
+            }
+
+            onComplete(true)
         }
     }
 
     fun dropDb(db : SQLiteDatabase, onComplete: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            db.delete(TABLE_CHARACTERS, null, null)
-            db.delete(TABLE_CHARACTERS_PLAYED_BY, null, null)
-            db.delete(TABLE_CHARACTERS_TV_SERIES, null, null)
-            db.delete(TABLE_CHARACTERS_BOOKS, null, null)
-            db.delete(TABLE_CHARACTERS_ALLEGIANCES, null, null)
-            db.delete(TABLE_CHARACTERS_ALIASES, null, null)
-            db.delete(TABLE_CHARACTERS_TITLES, null, null)
-            db.delete(TABLE_HOUSES, null, null)
-            db.delete(TABLE_HOUSES_SWORN_MEMBERS, null, null)
-            db.delete(TABLE_HOUSES_CADET_BRANCHES, null, null)
-            db.delete(TABLE_HOUSES_ANCESTRAL_WEAPONS, null, null)
-            db.delete(TABLE_HOUSES_SEATS, null, null)
-            db.delete(TABLE_HOUSES_TITLES, null, null)
+            val allTables = listOf(TABLE_CHARACTERS,
+                    TABLE_CHARACTERS_PLAYED_BY,
+                    TABLE_CHARACTERS_TV_SERIES,
+                    TABLE_CHARACTERS_BOOKS,
+                    TABLE_CHARACTERS_ALLEGIANCES,
+                    TABLE_CHARACTERS_ALIASES,
+                    TABLE_CHARACTERS_TITLES,
+                    TABLE_HOUSES,
+                    TABLE_HOUSES_SWORN_MEMBERS,
+                    TABLE_HOUSES_CADET_BRANCHES,
+                    TABLE_HOUSES_ANCESTRAL_WEAPONS,
+                    TABLE_HOUSES_SEATS,
+                    TABLE_HOUSES_TITLES)
+            for(table in allTables) {
+                db.execSQL( "DELETE FROM $table")
+            }
             onComplete()
         }
     }
