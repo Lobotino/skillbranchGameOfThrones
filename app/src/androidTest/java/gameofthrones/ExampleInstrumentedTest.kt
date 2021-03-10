@@ -21,7 +21,7 @@ class ExampleInstrumentedTest {
 
     private val stubHouseStark = HouseRes(
         url = "https://www.anapioficeandfire.com/api/houses/362",
-        fullName = "House Stark of Winterfell",
+        name = "House Stark of Winterfell",
         region = "The North",
         coatOfArms = "A running grey direwolf, on an ice-white field",
         words = "Winter is Coming",
@@ -48,7 +48,7 @@ class ExampleInstrumentedTest {
 
     private val stubHouseTargaryen = HouseRes(
         url = "https://www.anapioficeandfire.com/api/houses/378",
-        fullName = "House Targaryen of King's Landing",
+        name = "House Targaryen of King's Landing",
         region = "The Crownlands",
         coatOfArms = "Sable, a dragon thrice-headed gules",
         words = "Fire and Blood",
