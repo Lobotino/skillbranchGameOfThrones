@@ -60,16 +60,20 @@ class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
         }
     }
 
-    fun getHousesAndCharactersOnline(vararg houseNames: String, result: (houses: List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
+    fun getHousesAndCharactersOnline(vararg houseNames: String, result: (houses: List<Pair<HouseRes, List<CharacterRes>>>) -> Unit, onError: (error : IOException) -> Unit) {
         jobGetOnlineHousesCharacters?.cancel()
         jobGetOnlineHousesCharacters = GlobalScope.launch(Dispatchers.IO) {
-            val resultList = ArrayList<Pair<HouseRes, List<CharacterRes>>>()
-            for (house in houseNames) {
-                getHouseResByName(house)?.let {
-                    resultList.add(Pair(it, getCharactersResListByHouseMembers(it.swornMembers)))
+            try {
+                val resultList = ArrayList<Pair<HouseRes, List<CharacterRes>>>()
+                for (house in houseNames) {
+                    getHouseResByName(house)?.let {
+                        resultList.add(Pair(it, getCharactersResListByHouseMembers(it.swornMembers)))
+                    }
                 }
+                result(resultList)
+            } catch (ex : IOException) {
+                onError(ex)
             }
-            result(resultList)
         }
     }
 
@@ -120,7 +124,7 @@ class MainInteractor(private val onlineHousesRepository: OnlineHousesRepository,
 
     fun saveCharactersLocal(vararg characters: CharacterRes, onComplete: () -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
-            localCharactersRepository.saveCharacters(*characters, parseParentIdFromUrl = ::parseCharacterUrl)
+            localCharactersRepository.saveCharacters(charactersRes = *characters, parseParentIdFromUrl = ::parseCharacterUrl)
             onComplete()
         }
     }

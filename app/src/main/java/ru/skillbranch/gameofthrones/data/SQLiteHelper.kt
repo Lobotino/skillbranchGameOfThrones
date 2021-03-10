@@ -84,15 +84,15 @@ class SQLiteHelper(context: Context) :
                 COLUMN_NAME + " text primary key, " +
                 COLUMN_URL + " text not null, " +
                 COLUMN_FULL_NAME + " text not null, " +
-                COLUMN_REGION + " text not null, " +
-                COLUMN_COAT_OF_ARMS + " text not null, " +
-                COLUMN_WORDS + " text not null, " +
-                COLUMN_CURRENT_LORD + " text not null, " +
-                COLUMN_HEIR + " text not null, " +
-                COLUMN_OVERLORD + " text not null, " +
-                COLUMN_FOUNDED + " text not null, " +
-                COLUMN_FOUNDER + " text not null, " +
-                COLUMN_DIED_OUT + " text not null)"
+                COLUMN_REGION + " text, " +
+                COLUMN_COAT_OF_ARMS + " text, " +
+                COLUMN_WORDS + " text, " +
+                COLUMN_CURRENT_LORD + " text, " +
+                COLUMN_HEIR + " text, " +
+                COLUMN_OVERLORD + " text, " +
+                COLUMN_FOUNDED + " text, " +
+                COLUMN_FOUNDER + " text, " +
+                COLUMN_DIED_OUT + " text)"
 
         private const val TABLE_HOUSES_TITLES_SCRIPT = "create table " +
                 TABLE_HOUSES_TITLES + " (" +
@@ -126,9 +126,9 @@ class SQLiteHelper(context: Context) :
                 COLUMN_ID + " integer primary key, " +
                 COLUMN_NAME + " text not null, " +
                 COLUMN_URL + " text not null, " +
-                COLUMN_GENDER + " text not null, " +
-                COLUMN_CULTURE + " text not null, " +
-                COLUMN_BORN + " text not null, " +
+                COLUMN_GENDER + " text, " +
+                COLUMN_CULTURE + " text, " +
+                COLUMN_BORN + " text, " +
                 COLUMN_DIED + " text, " +
                 COLUMN_FATHER + " text, " +
                 COLUMN_MOTHER + " text, " +
@@ -215,12 +215,12 @@ class SQLiteHelper(context: Context) :
     }
 
     fun insertHouse(db: SQLiteDatabase, houseRes: HouseRes) {
-        val houseShortName = AppConfig.HOUSES_SHORT_NAMES[houseRes.fullName]
+        val houseShortName = AppConfig.HOUSES_SHORT_NAMES[houseRes.name]
 
         val houseValues = ContentValues()
         houseValues.put(COLUMN_URL, houseRes.url)
         houseValues.put(COLUMN_NAME, houseShortName)
-        houseValues.put(COLUMN_FULL_NAME, houseRes.fullName)
+        houseValues.put(COLUMN_FULL_NAME, houseRes.name)
         houseValues.put(COLUMN_REGION, houseRes.region)
         houseValues.put(COLUMN_COAT_OF_ARMS, houseRes.coatOfArms)
         houseValues.put(COLUMN_WORDS, houseRes.words)
@@ -235,7 +235,7 @@ class SQLiteHelper(context: Context) :
         if (houseRes.titles.isNotEmpty()) {
             for (title in houseRes.titles) {
                 val houseTitle = ContentValues()
-                houseTitle.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                houseTitle.put(COLUMN_HOUSE_NAME, houseRes.name)
                 houseTitle.put(COLUMN_TITLE, title)
                 db.insert(TABLE_HOUSES_TITLES, null, houseTitle)
             }
@@ -243,33 +243,39 @@ class SQLiteHelper(context: Context) :
         if (houseRes.seats.isNotEmpty()) {
             for (seat in houseRes.seats) {
                 val houseSeat = ContentValues()
-                houseSeat.put(COLUMN_HOUSE_NAME, houseRes.fullName)
+                houseSeat.put(COLUMN_HOUSE_NAME, houseRes.name)
                 houseSeat.put(COLUMN_SEAT, seat)
                 db.insert(TABLE_HOUSES_SEATS, null, houseSeat)
             }
         }
         if (houseRes.ancestralWeapons.isNotEmpty()) {
             for (weapon in houseRes.ancestralWeapons) {
-                val houseWeapon = ContentValues()
-                houseWeapon.put(COLUMN_HOUSE_NAME, houseRes.fullName)
-                houseWeapon.put(COLUMN_WEAPON, weapon)
-                db.insert(TABLE_HOUSES_ANCESTRAL_WEAPONS, null, houseWeapon)
+                if(weapon.isNotEmpty()) {
+                    val houseWeapon = ContentValues()
+                    houseWeapon.put(COLUMN_HOUSE_NAME, houseRes.name)
+                    houseWeapon.put(COLUMN_WEAPON, weapon)
+                    db.insert(TABLE_HOUSES_ANCESTRAL_WEAPONS, null, houseWeapon)
+                }
             }
         }
         if (houseRes.cadetBranches.isNotEmpty()) {
             for (cadetBranch in houseRes.cadetBranches) {
-                val cadetBranchValues = ContentValues()
-                cadetBranchValues.put(COLUMN_HOUSE_NAME, houseRes.fullName)
-                cadetBranchValues.put(COLUMN_CADET_BRANCH, cadetBranch.toString())
-                db.insert(TABLE_HOUSES_CADET_BRANCHES, null, cadetBranchValues)
+                if(cadetBranch.toString().isNotEmpty()) {
+                    val cadetBranchValues = ContentValues()
+                    cadetBranchValues.put(COLUMN_HOUSE_NAME, houseRes.name)
+                    cadetBranchValues.put(COLUMN_CADET_BRANCH, cadetBranch.toString())
+                    db.insert(TABLE_HOUSES_CADET_BRANCHES, null, cadetBranchValues)
+                }
             }
         }
         if (houseRes.swornMembers.isNotEmpty()) {
             for (swornMember in houseRes.swornMembers) {
-                val swornMembersValues = ContentValues()
-                swornMembersValues.put(COLUMN_HOUSE_NAME, houseRes.fullName)
-                swornMembersValues.put(COLUMN_SWORN_MEMBER, swornMember)
-                db.insert(TABLE_HOUSES_SWORN_MEMBERS, null, swornMembersValues)
+                if(swornMember.isNotEmpty()) {
+                    val swornMembersValues = ContentValues()
+                    swornMembersValues.put(COLUMN_HOUSE_NAME, houseRes.name)
+                    swornMembersValues.put(COLUMN_SWORN_MEMBER, swornMember)
+                    db.insert(TABLE_HOUSES_SWORN_MEMBERS, null, swornMembersValues)
+                }
             }
         }
     }
@@ -350,7 +356,7 @@ class SQLiteHelper(context: Context) :
 
         return HouseRes(
                 url = url,
-                fullName = fullName,
+                name = fullName,
                 region = region,
                 coatOfArms = coatOfArms,
                 words = words,
@@ -369,8 +375,10 @@ class SQLiteHelper(context: Context) :
     }
 
     fun insertCharacter(db: SQLiteDatabase, character: CharacterRes, parseParentIdFromUrl: (String) -> Long) {
+        val characterId = parseParentIdFromUrl(character.url)
+
         val characterValues = ContentValues()
-        characterValues.put(COLUMN_ID, parseParentIdFromUrl(character.url))
+        characterValues.put(COLUMN_ID, characterId)
         characterValues.put(COLUMN_NAME, character.name)
         characterValues.put(COLUMN_URL, character.url)
         characterValues.put(COLUMN_GENDER, character.gender)
@@ -383,65 +391,74 @@ class SQLiteHelper(context: Context) :
         character.houseId?.let { characterValues.put(COLUMN_HOUSE_NAME, it) }
         db.insert(TABLE_CHARACTERS, null, characterValues)
 
-        val idCursor = db.query(TABLE_CHARACTERS, listOf(COLUMN_ID).toTypedArray(), "$COLUMN_NAME LIKE ?", listOf(character.name).toTypedArray(), null, null, null)
-        idCursor.moveToFirst()
-        val characterId = idCursor.getInt(0)
-        idCursor.close()
-
         if (character.titles.isNotEmpty()) {
             for (title in character.titles) {
-                val characterTitle = ContentValues()
-                characterTitle.put(COLUMN_ID, characterId)
-                characterTitle.put(COLUMN_TITLE, title)
-                db.insert(TABLE_CHARACTERS_TITLES, null, characterTitle)
+                if (title.isNotEmpty()) {
+                    val characterTitle = ContentValues()
+                    characterTitle.put(COLUMN_ID, characterId)
+                    characterTitle.put(COLUMN_TITLE, title)
+                    db.insert(TABLE_CHARACTERS_TITLES, null, characterTitle)
+                }
             }
         }
         if (character.aliases.isNotEmpty()) {
             for (alias in character.aliases) {
-                val characterAlias = ContentValues()
-                characterAlias.put(COLUMN_ID, characterId)
-                characterAlias.put(COLUMN_ALIAS, alias)
-                db.insert(TABLE_CHARACTERS_ALIASES, null, characterAlias)
+                if (alias.isNotEmpty()) {
+                    val characterAlias = ContentValues()
+                    characterAlias.put(COLUMN_ID, characterId)
+                    characterAlias.put(COLUMN_ALIAS, alias)
+                    db.insert(TABLE_CHARACTERS_ALIASES, null, characterAlias)
+                }
             }
         }
         if (character.allegiances.isNotEmpty()) {
             for (allegiance in character.allegiances) {
-                val characterAllegiance = ContentValues()
-                characterAllegiance.put(COLUMN_ID, characterId)
-                characterAllegiance.put(COLUMN_ALLEGIANCE, allegiance)
-                db.insert(TABLE_CHARACTERS_ALLEGIANCES, null, characterAllegiance)
+                if (allegiance.isNotEmpty()) {
+                    val characterAllegiance = ContentValues()
+                    characterAllegiance.put(COLUMN_ID, characterId)
+                    characterAllegiance.put(COLUMN_ALLEGIANCE, allegiance)
+                    db.insert(TABLE_CHARACTERS_ALLEGIANCES, null, characterAllegiance)
+                }
             }
         }
         if (character.books.isNotEmpty()) {
             for (book in character.books) {
-                val characterBook = ContentValues()
-                characterBook.put(COLUMN_ID, characterId)
-                characterBook.put(COLUMN_BOOK, book)
-                db.insert(TABLE_CHARACTERS_BOOKS, null, characterBook)
+                if (book.isNotEmpty()) {
+                    val characterBook = ContentValues()
+                    characterBook.put(COLUMN_ID, characterId)
+                    characterBook.put(COLUMN_BOOK, book)
+                    db.insert(TABLE_CHARACTERS_BOOKS, null, characterBook)
+                }
             }
         }
         if (character.povBooks.isNotEmpty()) {
             for (book in character.povBooks) {
-                val characterBook = ContentValues()
-                characterBook.put(COLUMN_ID, characterId)
-                characterBook.put(COLUMN_BOOK, book.toString())
-                db.insert(TABLE_CHARACTERS_POV_BOOKS, null, characterBook)
+                if (book.toString().isNotEmpty()) {
+                    val characterBook = ContentValues()
+                    characterBook.put(COLUMN_ID, characterId)
+                    characterBook.put(COLUMN_BOOK, book.toString())
+                    db.insert(TABLE_CHARACTERS_POV_BOOKS, null, characterBook)
+                }
             }
         }
         if (character.tvSeries.isNotEmpty()) {
             for (series in character.tvSeries) {
-                val tvSeries = ContentValues()
-                tvSeries.put(COLUMN_ID, characterId)
-                tvSeries.put(COLUMN_SERIES, series)
-                db.insert(TABLE_CHARACTERS_TV_SERIES, null, tvSeries)
+                if (series.isNotEmpty()) {
+                    val tvSeries = ContentValues()
+                    tvSeries.put(COLUMN_ID, characterId)
+                    tvSeries.put(COLUMN_SERIES, series)
+                    db.insert(TABLE_CHARACTERS_TV_SERIES, null, tvSeries)
+                }
             }
         }
         if (character.playedBy.isNotEmpty()) {
             for (playedBy in character.playedBy) {
-                val characterPlayedBy = ContentValues()
-                characterPlayedBy.put(COLUMN_ID, characterId)
-                characterPlayedBy.put(COLUMN_PLAYED_BY, playedBy)
-                db.insert(TABLE_CHARACTERS_PLAYED_BY, null, characterPlayedBy)
+                if (playedBy.isNotEmpty()) {
+                    val characterPlayedBy = ContentValues()
+                    characterPlayedBy.put(COLUMN_ID, characterId)
+                    characterPlayedBy.put(COLUMN_PLAYED_BY, playedBy)
+                    db.insert(TABLE_CHARACTERS_PLAYED_BY, null, characterPlayedBy)
+                }
             }
         }
     }

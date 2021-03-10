@@ -2,7 +2,7 @@ package ru.skillbranch.gameofthrones.data.remote.res
 
 data class HouseRes(
         val url: String,
-        val fullName: String,
+        val name: String,
         val region: String,
         val coatOfArms: String,
         val words: String,

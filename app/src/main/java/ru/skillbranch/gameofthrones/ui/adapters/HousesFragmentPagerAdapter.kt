@@ -12,6 +12,10 @@ class HousesFragmentPagerAdapter(fragmentManager: FragmentManager) : FragmentSta
     }
 
     override fun getItem(position: Int): Fragment {
-        return HouseCharactersFragment(AppConfig.HOUSES_NAMES_LIST[position])
+        return HouseCharactersFragment(AppConfig.HOUSES_SHORT_NAMES_LIST[position])
+    }
+
+    override fun getPageTitle(position: Int): CharSequence? {
+        return AppConfig.HOUSES_SHORT_NAMES_LIST[position]
     }
 }

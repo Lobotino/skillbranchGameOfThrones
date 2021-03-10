@@ -50,7 +50,7 @@ object RootRepository {
      */
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun getNeedHouseWithCharacters(vararg houseNames: String, result : (houses : List<Pair<HouseRes, List<CharacterRes>>>) -> Unit) {
-        mainInteractor.getHousesAndCharactersOnline(*houseNames, result = result)
+        mainInteractor.getHousesAndCharactersOnline(*houseNames, result = result, onError = {})
     }
 
     /**
