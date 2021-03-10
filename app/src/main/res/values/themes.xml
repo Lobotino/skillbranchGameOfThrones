@@ -17,4 +17,8 @@
     <style name="Theme.SBGameOfThrones.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.SBGameOfThrones.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ProgressColor">
+        <item name="colorAccent">@color/progress_accent</item> <!-- Whatever color you want-->
+    </style>
 </resources>
